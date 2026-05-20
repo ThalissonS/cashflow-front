@@ -1,0 +1,28 @@
+<div style="border: 1px solid #ccc; padding: 20px; margin-top: 20px; border-radius: 8px;">
+  <h3>Nova Despesa 💸</h3>
+
+  <form [formGroup]="formDespesa" (ngSubmit)="enviarParaNuvem()" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px;">
+    
+    <input type="text" formControlName="descricao" placeholder="Descrição (Ex: Conta de Luz)" style="padding: 8px;">
+    
+    <input type="number" formControlName="valor" placeholder="Valor (Ex: 150.50)" step="0.01" style="padding: 8px;">
+    
+    <input type="date" formControlName="dataVencimento" style="padding: 8px;">
+    
+    <div formGroupName="categoria" style="display: flex; flex-direction: column;">
+      <select formControlName="id" style="padding: 8px;">
+        <option value="" disabled selected>Selecione a Categoria...</option>
+        
+        @for (cat of categorias; track cat.id) {
+          <option [value]="cat.id">{{ cat.nome }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="formDespesa.invalid" style="padding: 10px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px;">
+      Salvar Despesa
+    </button>
+  </form>
+
+  <p style="font-weight: bold; margin-top: 10px;">{{ mensagem }}</p>
+</div>

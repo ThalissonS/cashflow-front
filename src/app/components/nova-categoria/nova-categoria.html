@@ -1,0 +1,16 @@
+<div style="border: 1px solid #ccc; padding: 20px; margin-top: 20px; border-radius: 8px;">
+  <h3>Nova Categoria 🏷️</h3>
+
+  <form [formGroup]="formCategoria" (ngSubmit)="enviarParaNuvem()" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px;">
+    
+    <input type="text" formControlName="nome" placeholder="Nome (Ex: Alimentação)" style="padding: 8px;">
+    
+    <input type="text" formControlName="descricao" placeholder="Descrição (Opcional)" style="padding: 8px;">
+    
+    <button type="submit" [disabled]="formCategoria.invalid" style="padding: 10px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px;">
+      Salvar Categoria
+    </button>
+  </form>
+
+  <p style="font-weight: bold; margin-top: 10px;">{{ mensagem }}</p>
+</div>
