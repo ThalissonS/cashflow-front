@@ -1,59 +1,100 @@
-# CashflowFront
+# Cash-Flow — Frontend (Angular 21)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.11.
+Interface web do app de financas pessoais Cash-Flow. Consome a API Spring Boot
+e cobre: login/cadastro com controle de acesso, painel do mes, lancamentos,
+metas, simulador de investimentos e area de administracao.
 
-## Development server
+---
 
-To start a local development server, run:
+## Stack
 
-```bash
-ng serve
-```
+- **Angular 21** (standalone components, sem NgModules)
+- **Signals** (`signal`, `computed`) para estado reativo
+- **Reactive Forms** nos formularios
+- **Novo control flow** nos templates: `@if`, `@for`, `@else`
+- Router com **lazy loading** + **guards** (auth e admin)
+- **HttpClient** com `withFetch()` e um **interceptor** que injeta o JWT
+- TypeScript **strict** + **strictTemplates** (tudo tipado, sem `any`)
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## Como rodar
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
+Pre-requisito: Node.js 20+.
 
 ```bash
-ng build
+npm install
+npm start         # http://localhost:4200
+npm run build     # gera dist/cashflow-front (producao)
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+O app aponta para o backend de producao por padrao. Para usar um backend local,
+edite o `baseUrl` em `src/app/services/cashflow-api.ts` e em
+`src/app/services/auth.service.ts` (troque por `http://localhost:8080`).
 
-## Running unit tests
+> O backend gratuito na Render "hiberna" sem uso: a 1a chamada do dia pode
+> levar ~30-50s. As telas mostram aviso e botao "tentar de novo".
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+---
 
-```bash
-ng test
+## Estrutura
+
+```
+src/app/
+├─ app.ts / app.html / app.css     # moldura: cabecalho, nav, area de pagina
+├─ app.config.ts                   # providers (router, http, interceptor)
+├─ app.routes.ts                   # rotas (lazy) + guards
+├─ models/api.models.ts            # interfaces que espelham os DTOs do backend
+├─ services/
+│  ├─ cashflow-api.ts              # ponte com a API (todos os endpoints)
+│  ├─ auth.service.ts              # login/cadastro/logout, token, ehAdmin
+│  ├─ auth.interceptor.ts          # injeta o token; trata 401
+│  └─ toast.service.ts             # avisos flutuantes
+├─ guards/
+│  ├─ auth.guard.ts                # exige login
+│  └─ admin.guard.ts               # exige ROLE_ADMIN
+├─ utils/format.ts                 # R$, %, datas, cores por tipo
+└─ pages/
+   ├─ login/        cadastro/      # autenticacao (publicas)
+   ├─ dashboard/                   # painel do mes (+ regua de alocacao)
+   ├─ lancamentos/                 # diario do dinheiro
+   ├─ metas/                       # objetivos + projecao
+   ├─ simulador/                   # simulador de investimentos
+   └─ admin/                       # controle de acesso (so admin)
 ```
 
-## Running end-to-end tests
+---
 
-For end-to-end (e2e) testing, run:
+## Como a autenticacao funciona no front
 
-```bash
-ng e2e
-```
+1. Login chama `POST /auth/login`; o token e os dados do usuario vao para o
+   `localStorage`, e o estado vira reativo via signals (`AuthService`).
+2. O **interceptor** anexa `Authorization: Bearer <token>` em toda requisicao
+   (menos login/cadastro) e, se receber **401**, desloga e manda pro `/entrar`.
+3. As rotas internas tem **`authGuard`**; a rota `/admin` tem **`adminGuard`**.
+4. O cadastro nasce **pendente** no backend, entao a tela mostra "aguarde
+   aprovacao" em vez de entrar.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+---
 
-## Additional Resources
+## Identidade visual
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Estetica de app financeiro ("wealth statement"): faixa de marca escura
+(verde-petroleo quase preto) ancorando cada tela, numero "heroi" em destaque
+(saldo/resultado), densidade alta com linhas divididas, cores semanticas por
+tipo (receita verde, gasto fixo ambar, variavel coral, investido azul) e o
+dourado reservado a juros/CDI. Tipografia: **Space Grotesk** (titulos/numeros,
+com `tabular-nums`) + **Inter** (texto).
+
+O grafico do painel ("para onde foi o dinheiro") e uma **regua de alocacao**:
+a receita e a barra cheia e cada fatia mostra para onde ela foi, sobrando o
+saldo.
+
+---
+
+## Notas
+
+- Sem `localStorage` proibido em artifacts aqui — o app real roda no navegador,
+  entao o uso de `localStorage` para o token e normal e intencional.
+- Para publicar (Vercel/Netlify) e transformar em PWA (icone na tela inicial),
+  ver o guia de deploy (pendente).
