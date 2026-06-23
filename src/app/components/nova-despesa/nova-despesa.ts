@@ -1,66 +1,65 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Finance } from '../../services/finance';
+import { Categoria } from '../../models/api.models';
 
 @Component({
   selector: 'app-nova-despesa',
   standalone: true,
   imports: [ReactiveFormsModule],
-  templateUrl: './nova-despesa.html'
+  templateUrl: './nova-despesa.html',
 })
 export class NovaDespesaComponent implements OnInit {
   private fb = inject(FormBuilder);
   private financeService = inject(Finance);
 
-  // Variável para guardar a lista que vem do backend
-  categorias: any[] = [];
+  categorias: Categoria[] = [];
   mensagem = '';
 
-  // O "Esqueleto" espelhando exatamente o JSON que o seu Java espera
-  formDespesa = this.fb.group({
+  formDespesa = this.fb.nonNullable.group({
     descricao: ['', Validators.required],
-    valor: ['', [Validators.required, Validators.min(0.01)]],
-    dataVencimento: ['', Validators.required],
-    // Sub-grupo, porque o Java espera: "categoria": { "id": 1 }
-    categoria: this.fb.group({
-      id: ['', Validators.required]
-    })
+    valor: [0, [Validators.required, Validators.min(0.01)]],
+    categoriaId: [null as number | null],
   });
 
-  // Roda automaticamente quando o componente aparece na tela
-  carregarCategorias() {
-    this.financeService.getCategorias().subscribe({
-      next: (dados) => this.categorias = dados,
-      error: (err) => console.error('Erro ao carregar categorias:', err)
-    });
-  }
-
-  // 2. O ciclo de vida que roda ao abrir a tela
   ngOnInit() {
-    // Busca a primeira vez que a tela desenha
     this.carregarCategorias();
-
-    // Fica escutando o rádio. Se o formulário de cima gritar, ele busca de novo sozinho!
     this.financeService.atualizarCategorias$.subscribe(() => {
       this.carregarCategorias();
     });
   }
 
+  carregarCategorias() {
+    this.financeService.getCategorias().subscribe({
+      next: (dados) => (this.categorias = dados),
+      error: () => console.error('Erro ao carregar categorias'),
+    });
+  }
+
   enviarParaNuvem() {
-    if (this.formDespesa.valid) {
-      this.mensagem = 'Enviando...';
-      
-      this.financeService.salvarDespesa(this.formDespesa.value).subscribe({
+    if (this.formDespesa.invalid) return;
+    this.mensagem = 'Enviando...';
+    const val = this.formDespesa.getRawValue();
+
+    const now = new Date();
+    this.financeService
+      .salvarLancamento({
+        descricao: val.descricao,
+        valor: val.valor,
+        tipo: 'GASTO_VARIAVEL',
+        ano: now.getFullYear(),
+        mes: now.getMonth() + 1,
+        ...(val.categoriaId ? { categoriaId: val.categoriaId } : {}),
+      })
+      .subscribe({
         next: () => {
-          this.mensagem = '✅ Despesa salva com sucesso!';
+          this.mensagem = 'Despesa salva com sucesso!';
           this.formDespesa.reset();
-          
+          this.financeService.atualizarLancamentos$.next();
         },
-        error: (err) => {
-          console.error(err);
-          this.mensagem = '❌ Erro ao salvar despesa.';
-        }
+        error: () => {
+          this.mensagem = 'Erro ao salvar despesa.';
+        },
       });
-    }
   }
 }

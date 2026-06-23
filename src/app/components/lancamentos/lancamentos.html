@@ -1,0 +1,125 @@
+<div>
+  <div class="page-header lc-header">
+    <div>
+      <h1 class="page-title">Lançamentos</h1>
+      <p class="page-subtitle">{{ nomeMes() }} / {{ ano() }}</p>
+    </div>
+    <button class="btn btn-primary" (click)="mostrarForm.update(v => !v)">
+      {{ mostrarForm() ? 'Cancelar' : '+ Novo Lançamento' }}
+    </button>
+  </div>
+
+  <!-- Filtro de período -->
+  <div class="periodo card">
+    <select class="form-control periodo-select" [value]="mes()" (change)="setMes($any($event.target).value)">
+      @for (m of meses; track m.value) {
+        <option [value]="m.value" [selected]="m.value === mes()">{{ m.label }}</option>
+      }
+    </select>
+    <select class="form-control periodo-select" [value]="ano()" (change)="setAno($any($event.target).value)">
+      @for (a of anos(); track a) {
+        <option [value]="a" [selected]="a === ano()">{{ a }}</option>
+      }
+    </select>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert-danger" style="margin-top: 1rem;">{{ erro() }}</div>
+  }
+
+  <!-- Formulário novo lançamento -->
+  @if (mostrarForm()) {
+    <div class="card form-card">
+      <h3 class="form-card-title">Novo Lançamento</h3>
+      <form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Descrição *</label>
+            <input type="text" class="form-control" formControlName="descricao" placeholder="Ex: Aluguel" />
+            @if (form.controls.descricao.invalid && form.controls.descricao.touched) {
+              <span class="form-error">Descrição obrigatória.</span>
+            }
+          </div>
+          <div class="form-group">
+            <label class="form-label">Valor (R$) *</label>
+            <input type="number" class="form-control" formControlName="valor" min="0.01" step="0.01" />
+            @if (form.controls.valor.invalid && form.controls.valor.touched) {
+              <span class="form-error">Valor deve ser maior que zero.</span>
+            }
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tipo *</label>
+            <select class="form-control" formControlName="tipo">
+              @for (t of tipos; track t.value) {
+                <option [value]="t.value">{{ t.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoria</label>
+            <select class="form-control" formControlName="categoriaId">
+              <option [value]="null">Sem categoria</option>
+              @for (c of categorias(); track c.id) {
+                <option [value]="c.id">{{ c.nome }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Mês *</label>
+            <select class="form-control" formControlName="mes">
+              @for (m of meses; track m.value) {
+                <option [value]="m.value">{{ m.label }}</option>
+              }
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ano *</label>
+            <select class="form-control" formControlName="ano">
+              @for (a of anos(); track a) {
+                <option [value]="a">{{ a }}</option>
+              }
+            </select>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="salvando()">
+            {{ salvando() ? 'Salvando...' : 'Salvar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Lista de lançamentos -->
+  @if (loading()) {
+    <div class="loading-spinner">Carregando lançamentos...</div>
+  } @else if (lancamentos().length === 0) {
+    <div class="empty-state">
+      <p>Nenhum lançamento em {{ nomeMes() }}/{{ ano() }}.</p>
+    </div>
+  } @else {
+    <div class="lista">
+      @for (l of lancamentos(); track l.id) {
+        <div class="lc-item card">
+          <div class="lc-info">
+            <span class="lc-desc">{{ l.descricao }}</span>
+            @if (l.categoria) {
+              <span class="badge badge-primary">{{ l.categoria.nome }}</span>
+            }
+          </div>
+          <div class="lc-right">
+            <span class="lc-valor" [class]="classeTipo(l.tipo)">{{ formatar(l.valor) }}</span>
+            <span class="badge" [class]="'badge-' + (l.tipo === 'RECEITA' ? 'success' : l.tipo === 'INVESTIMENTO' ? 'primary' : 'danger')">
+              {{ labelTipo(l.tipo) }}
+            </span>
+            <button class="btn btn-danger btn-sm" (click)="deletar(l.id)">Excluir</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

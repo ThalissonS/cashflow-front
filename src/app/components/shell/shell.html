@@ -1,0 +1,85 @@
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="menuAberto()">
+    <div class="sidebar-header">
+      <span class="brand">CashFlow Pro</span>
+      <button class="close-btn" (click)="fecharMenu()">✕</button>
+    </div>
+
+    <nav class="nav">
+      <a
+        routerLink="/painel"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fecharMenu()"
+      >
+        <span class="nav-icon">📊</span>
+        <span>Painel</span>
+      </a>
+      <a
+        routerLink="/lancamentos"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fecharMenu()"
+      >
+        <span class="nav-icon">💸</span>
+        <span>Lançamentos</span>
+      </a>
+      <a
+        routerLink="/metas"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fecharMenu()"
+      >
+        <span class="nav-icon">🎯</span>
+        <span>Metas</span>
+      </a>
+      <a
+        routerLink="/simulador"
+        routerLinkActive="active"
+        class="nav-item"
+        (click)="fecharMenu()"
+      >
+        <span class="nav-icon">📈</span>
+        <span>Simulador</span>
+      </a>
+      @if (auth.isAdmin()) {
+        <a
+          routerLink="/admin"
+          routerLinkActive="active"
+          class="nav-item"
+          (click)="fecharMenu()"
+        >
+          <span class="nav-icon">🔐</span>
+          <span>Admin</span>
+        </a>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-name">{{ auth.nome() }}</span>
+        @if (auth.isAdmin()) {
+          <span class="badge badge-warning">Admin</span>
+        }
+      </div>
+      <button class="btn btn-ghost btn-sm" (click)="logout()">Sair</button>
+    </div>
+  </aside>
+
+  <!-- Overlay mobile -->
+  @if (menuAberto()) {
+    <div class="overlay" (click)="fecharMenu()"></div>
+  }
+
+  <!-- Main content -->
+  <div class="main">
+    <header class="topbar">
+      <button class="menu-btn" (click)="toggleMenu()">☰</button>
+      <span class="topbar-brand">CashFlow Pro</span>
+    </header>
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<div>
+  <div class="page-header">
+    <h1 class="page-title">Simulador de Investimentos</h1>
+    <p class="page-subtitle">Compare CDB, LCI, LCA e Poupança com IR regressivo</p>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert-danger">{{ erro() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">Carregando tipos...</div>
+  } @else {
+    <div class="sim-layout">
+      <!-- Formulário -->
+      <div class="card">
+        <h3 class="form-card-title">Parâmetros</h3>
+        <form [formGroup]="form" (ngSubmit)="simular()" novalidate>
+
+          <div class="form-group">
+            <label class="form-label">Tipo de Investimento *</label>
+            <select class="form-control" formControlName="tipo" (change)="onTipoChange($event)">
+              <option value="">Selecione...</option>
+              @for (t of tipos(); track t.tipo) {
+                <option [value]="t.tipo">{{ t.descricao }}</option>
+              }
+            </select>
+            @if (form.controls.tipo.invalid && form.controls.tipo.touched) {
+              <span class="form-error">Selecione um tipo.</span>
+            }
+          </div>
+
+          @if (carregandoOfertas()) {
+            <div style="margin: 0.5rem 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+              Carregando ofertas...
+            </div>
+          }
+
+          @if (ofertas().length > 0) {
+            <div class="form-group" style="margin-top: 1rem;">
+              <label class="form-label">Banco / Oferta</label>
+              <select class="form-control" formControlName="bancoId" (change)="onBancoChange($event)">
+                <option value="">Personalizar taxa</option>
+                @for (o of ofertas(); track o.bancoId) {
+                  <option [value]="o.bancoId">{{ o.banco }} — {{ o.percentualCdi }}% CDI</option>
+                }
+              </select>
+            </div>
+          }
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label class="form-label">% do CDI</label>
+            <input type="number" class="form-control" formControlName="percentualCdi" min="0.01" step="0.01" placeholder="Ex: 100" />
+          </div>
+
+          <div class="form-row" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Valor Inicial (R$) *</label>
+              <input type="number" class="form-control" formControlName="valorInicial" min="0" step="0.01" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Aporte Mensal (R$)</label>
+              <input type="number" class="form-control" formControlName="aporteMensal" min="0" step="0.01" />
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label class="form-label">Prazo (meses) *</label>
+            <input type="number" class="form-control" formControlName="prazoMeses" min="1" />
+            @if (form.controls.prazoMeses.invalid && form.controls.prazoMeses.touched) {
+              <span class="form-error">Prazo deve ser ao menos 1 mês.</span>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" [disabled]="simulando()">
+            {{ simulando() ? 'Simulando...' : 'Simular' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Resultado -->
+      @if (resultado(); as r) {
+        <div class="card resultado-card">
+          <h3 class="form-card-title">Resultado da Simulação</h3>
+          <div class="resultado-grid">
+            <div class="resultado-item">
+              <span class="resultado-label">Valor Bruto</span>
+              <span class="resultado-value">{{ formatar(r.valorBruto) }}</span>
+            </div>
+            <div class="resultado-item">
+              <span class="resultado-label">Imposto de Renda ({{ formatarPct(r.aliquotaIr) }})</span>
+              <span class="resultado-value tipo-gasto-fixo">{{ formatar(r.ir) }}</span>
+            </div>
+            <div class="resultado-item destaque">
+              <span class="resultado-label">Valor Líquido</span>
+              <span class="resultado-value tipo-receita">{{ formatar(r.valorLiquido) }}</span>
+            </div>
+            <div class="resultado-item">
+              <span class="resultado-label">Rendimento Total</span>
+              <span class="resultado-value tipo-invest">{{ formatar(r.rendimento) }}</span>
+            </div>
+          </div>
+          <p class="resultado-obs">
+            IR calculado com aproximação de meses × 30 dias (IR regressivo: 22,5% até 6m → 15% acima de 24m).
+            LCI e LCA são isentos de IR.
+          </p>
+        </div>
+      }
+    </div>
+  }
+</div>

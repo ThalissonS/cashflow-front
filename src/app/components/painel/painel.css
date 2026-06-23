@@ -1,0 +1,78 @@
+.periodo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.periodo-select {
+  width: auto;
+  min-width: 120px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.metric-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.metric-value {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-value.receita     { color: var(--color-receita); }
+.metric-value.gasto-fixo  { color: var(--color-gasto-fixo); }
+.metric-value.gasto-var   { color: var(--color-gasto-variavel); }
+.metric-value.investimento { color: var(--color-investimento); }
+.metric-value.saldo       { color: var(--color-text); }
+
+.saldo-card.positivo .metric-value.saldo { color: var(--color-success); }
+.saldo-card.negativo .metric-value.saldo { color: var(--color-danger); }
+
+.cdi-card {
+  margin-top: var(--space-md);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xl);
+}
+
+.cdi-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.cdi-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cdi-value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.cdi-value.receita { color: var(--color-success); }

@@ -1,0 +1,56 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <div class="auth-header">
+      <h1 class="auth-title">CashFlow Pro</h1>
+      <p class="auth-subtitle">Entre na sua conta para continuar</p>
+    </div>
+
+    @if (erro()) {
+      <div class="alert alert-danger">{{ erro() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          placeholder="seu@email.com"
+          autocomplete="email"
+        />
+        @if (form.controls.email.invalid && form.controls.email.touched) {
+          <span class="form-error">Email inválido.</span>
+        }
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label class="form-label" for="senha">Senha</label>
+        <input
+          id="senha"
+          type="password"
+          class="form-control"
+          formControlName="senha"
+          placeholder="Mínimo 6 caracteres"
+          autocomplete="current-password"
+        />
+        @if (form.controls.senha.invalid && form.controls.senha.touched) {
+          <span class="form-error">Senha deve ter ao menos 6 caracteres.</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary auth-btn"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+
+    <p class="auth-link">
+      Não tem conta? <a routerLink="/registro">Cadastre-se</a>
+    </p>
+  </div>
+</div>

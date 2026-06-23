@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://api-cashflow.onrender.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api": "" },
+    "headers": {
+      "Origin": "https://cashflow-front-mu.vercel.app"
+    }
+  }
+}

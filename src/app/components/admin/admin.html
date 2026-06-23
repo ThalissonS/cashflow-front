@@ -1,0 +1,65 @@
+<div>
+  <div class="page-header">
+    <h1 class="page-title">Administração</h1>
+    <p class="page-subtitle">Gerencie as contas de usuários</p>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert-danger">{{ erro() }}</div>
+  }
+
+  @if (sucesso()) {
+    <div class="alert alert-success">{{ sucesso() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">Carregando usuários...</div>
+  } @else if (usuarios().length === 0) {
+    <div class="empty-state">
+      <p>Nenhum usuário cadastrado.</p>
+    </div>
+  } @else {
+    <div class="card">
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Email</th>
+              <th>Papel</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usuarios(); track u.id) {
+              <tr>
+                <td class="td-nome">{{ u.nome }}</td>
+                <td class="td-email">{{ u.email }}</td>
+                <td>
+                  <span class="badge" [class]="u.papel === 'ROLE_ADMIN' ? 'badge-warning' : 'badge-primary'">
+                    {{ labelPapel(u) }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge" [class]="u.status === 'APROVADO' ? 'badge-success' : 'badge-danger'">
+                    {{ labelStatus(u) }}
+                  </span>
+                </td>
+                <td>
+                  @if (u.status === 'PENDENTE') {
+                    <button class="btn btn-primary btn-sm" (click)="aprovar(u.id)">
+                      Aprovar
+                    </button>
+                  } @else {
+                    <span class="td-ok">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

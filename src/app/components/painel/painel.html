@@ -1,0 +1,76 @@
+<div>
+  <div class="page-header">
+    <h1 class="page-title">Painel Mensal</h1>
+    <p class="page-subtitle">Visão financeira do mês selecionado</p>
+  </div>
+
+  <!-- Seletor de período -->
+  <div class="periodo card">
+    <select class="form-control periodo-select" [value]="mes()" (change)="setMes($any($event.target).value)">
+      @for (m of meses; track m.value) {
+        <option [value]="m.value" [selected]="m.value === mes()">{{ m.label }}</option>
+      }
+    </select>
+    <select class="form-control periodo-select" [value]="ano()" (change)="setAno($any($event.target).value)">
+      @for (a of anos(); track a) {
+        <option [value]="a" [selected]="a === ano()">{{ a }}</option>
+      }
+    </select>
+    <button class="btn btn-primary" (click)="carregar()" [disabled]="loading()">
+      {{ loading() ? 'Carregando...' : 'Atualizar' }}
+    </button>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert-danger" style="margin-top: 1rem;">{{ erro() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">Carregando dados...</div>
+  } @else if (resumo()) {
+    <div class="cards-grid">
+      <!-- Receitas -->
+      <div class="card metric-card">
+        <div class="metric-label">Receitas</div>
+        <div class="metric-value receita">{{ formatar(resumo()!.totalReceitas) }}</div>
+      </div>
+      <!-- Gastos Fixos -->
+      <div class="card metric-card">
+        <div class="metric-label">Gastos Fixos</div>
+        <div class="metric-value gasto-fixo">{{ formatar(resumo()!.totalGastosFixos) }}</div>
+      </div>
+      <!-- Gastos Variáveis -->
+      <div class="card metric-card">
+        <div class="metric-label">Gastos Variáveis</div>
+        <div class="metric-value gasto-var">{{ formatar(resumo()!.totalGastosVariaveis) }}</div>
+      </div>
+      <!-- Investido no mês -->
+      <div class="card metric-card">
+        <div class="metric-label">Investido no Mês</div>
+        <div class="metric-value investimento">{{ formatar(resumo()!.totalInvestidoNoMes) }}</div>
+      </div>
+      <!-- Saldo -->
+      <div class="card metric-card saldo-card" [class.positivo]="resumo()!.saldo >= 0" [class.negativo]="resumo()!.saldo < 0">
+        <div class="metric-label">Saldo do Mês</div>
+        <div class="metric-value saldo">{{ formatar(resumo()!.saldo) }}</div>
+      </div>
+      <!-- Patrimônio investido -->
+      <div class="card metric-card">
+        <div class="metric-label">Patrimônio Investido</div>
+        <div class="metric-value investimento">{{ formatar(resumo()!.patrimonioInvestido) }}</div>
+      </div>
+    </div>
+
+    <!-- Linha CDI -->
+    <div class="card cdi-card">
+      <div class="cdi-info">
+        <span class="cdi-label">CDI Anual (Banco Central)</span>
+        <span class="cdi-value">{{ formatarPct(resumo()!.cdiAnual) }}</span>
+      </div>
+      <div class="cdi-info">
+        <span class="cdi-label">Rendimento Estimado no Mês</span>
+        <span class="cdi-value receita">{{ formatar(resumo()!.rendimentoEstimadoMes) }}</span>
+      </div>
+    </div>
+  }
+</div>
