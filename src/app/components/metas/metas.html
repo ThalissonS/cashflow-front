@@ -1,23 +1,26 @@
-<div>
-  <div class="page-header metas-header">
+<div class="metas">
+
+  <div class="metas-page-header">
     <div>
       <h1 class="page-title">Metas Financeiras</h1>
-      <p class="page-subtitle">Acompanhe o progresso das suas metas</p>
+      <p class="page-subtitle">Acompanhe o progresso dos seus objetivos</p>
     </div>
     <button class="btn btn-primary" (click)="mostrarForm.update(v => !v)">
-      {{ mostrarForm() ? 'Cancelar' : '+ Nova Meta' }}
+      @if (mostrarForm()) {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      } @else {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Meta
+      }
     </button>
   </div>
 
-  @if (erro()) {
-    <div class="alert alert-danger">{{ erro() }}</div>
-  }
-
   @if (mostrarForm()) {
-    <div class="card form-card">
-      <h3 class="form-card-title">Nova Meta</h3>
-      <form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
-        <div class="form-row">
+    <div class="meta-form-card">
+      <h3 class="meta-form-title">Nova Meta</h3>
+      <form [formGroup]="form" (ngSubmit)="salvar()" novalidate class="meta-form-body">
+        <div class="meta-form-row">
           <div class="form-group">
             <label class="form-label">Nome da Meta *</label>
             <input type="text" class="form-control" formControlName="nome" placeholder="Ex: Reserva de emergência" />
@@ -33,7 +36,7 @@
             }
           </div>
         </div>
-        <div class="form-row">
+        <div class="meta-form-row">
           <div class="form-group">
             <label class="form-label">Aporte Mensal (R$) *</label>
             <input type="number" class="form-control" formControlName="aporteMensal" min="0" step="0.01" />
@@ -43,66 +46,87 @@
             <input type="number" class="form-control" formControlName="valorInicial" min="0" step="0.01" placeholder="0,00" />
           </div>
         </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="salvando()">
-            {{ salvando() ? 'Salvando...' : 'Salvar' }}
-          </button>
-        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="salvando()">
+          {{ salvando() ? 'Salvando...' : 'Criar Meta' }}
+        </button>
       </form>
     </div>
+  }
+
+  @if (erro()) {
+    <div class="alert alert-danger">{{ erro() }}</div>
   }
 
   @if (loading()) {
     <div class="loading-spinner">Carregando metas...</div>
   } @else if (metas().length === 0) {
     <div class="empty-state">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-text-secondary)">
+        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+      </svg>
       <p>Nenhuma meta cadastrada.</p>
-      <p>Clique em "Nova Meta" para começar.</p>
+      <p style="font-size:0.85rem;color:var(--color-text-secondary)">Clique em "Nova Meta" para começar.</p>
     </div>
   } @else {
-    <div class="metas-lista">
+    <div class="metas-grid">
       @for (meta of metas(); track meta.id) {
-        <div class="card meta-card">
-          <div class="meta-top">
-            <div>
-              <h3 class="meta-nome">{{ meta.nome }}</h3>
-              <p class="meta-alvo">Alvo: {{ formatar(meta.valorAlvo) }}</p>
+        <div class="meta-card">
+
+          <div class="meta-card__header">
+            <div class="meta-card__icon-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+              </svg>
             </div>
-            <button class="btn btn-danger btn-sm" (click)="deletar(meta.id)">Excluir</button>
+            <div class="meta-card__title-wrap">
+              <h3 class="meta-card__name">{{ meta.nome }}</h3>
+              <span class="meta-card__alvo">{{ formatar(meta.valorAlvo) }}</span>
+            </div>
+            <button class="meta-card__del" (click)="deletar(meta.id)" title="Excluir">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M9 6V4h6v2"/>
+              </svg>
+            </button>
           </div>
 
-          <div class="meta-info">
-            <span class="meta-info-item">
-              <span class="info-label">Aporte Mensal</span>
-              <span class="info-value">{{ formatar(meta.aporteMensal) }}</span>
-            </span>
-            @if (meta.valorInicial) {
-              <span class="meta-info-item">
-                <span class="info-label">Inicial</span>
-                <span class="info-value">{{ formatar(meta.valorInicial) }}</span>
-              </span>
-            }
+          <!-- Progress bar -->
+          <div class="meta-card__progress-wrap">
+            <div class="meta-card__progress-bar">
+              <div class="meta-card__progress-fill" [style.width.%]="progresso(meta.id)"></div>
+            </div>
+            <div class="meta-card__progress-labels">
+              @if (meta.valorInicial) {
+                <span class="meta-card__progress-current">{{ formatar(meta.valorInicial) }}</span>
+              } @else {
+                <span class="meta-card__progress-current">R$ 0,00</span>
+              }
+              <span class="meta-card__progress-pct">{{ progresso(meta.id).toFixed(0) }}%</span>
+            </div>
+          </div>
+
+          <!-- Stats row -->
+          <div class="meta-card__stats">
+            <div class="meta-stat">
+              <span class="meta-stat__label">Aporte mensal</span>
+              <span class="meta-stat__value">{{ formatar(meta.aporteMensal) }}</span>
+            </div>
             @if (projecoes().get(meta.id); as p) {
-              <span class="meta-info-item">
-                <span class="info-label">Falta</span>
-                <span class="info-value tipo-gasto-fixo">{{ formatar(p.falta) }}</span>
-              </span>
-              <span class="meta-info-item">
-                <span class="info-label">Prazo</span>
-                <span class="info-value">{{ p.mesesRestantes }} meses</span>
-              </span>
+              <div class="meta-stat">
+                <span class="meta-stat__label">Falta</span>
+                <span class="meta-stat__value meta-stat__value--danger">{{ formatar(p.falta) }}</span>
+              </div>
+              <div class="meta-stat">
+                <span class="meta-stat__label">Prazo</span>
+                <span class="meta-stat__value">{{ p.mesesRestantes }}m</span>
+              </div>
             }
           </div>
 
-          <!-- Barra de progresso -->
-          <div class="progress-bar-wrap">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="progresso(meta.id)"></div>
-            </div>
-            <span class="progress-pct">{{ progresso(meta.id).toFixed(0) }}%</span>
-          </div>
         </div>
       }
     </div>
   }
+
 </div>

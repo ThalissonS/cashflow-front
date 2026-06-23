@@ -1,7 +1,10 @@
-<div>
+<div class="admin">
+
   <div class="page-header">
-    <h1 class="page-title">Administração</h1>
-    <p class="page-subtitle">Gerencie as contas de usuários</p>
+    <div>
+      <h1 class="page-title">Administração</h1>
+      <p class="page-subtitle">Gerenciamento de contas de usuário</p>
+    </div>
   </div>
 
   @if (erro()) {
@@ -19,22 +22,29 @@
       <p>Nenhum usuário cadastrado.</p>
     </div>
   } @else {
-    <div class="card">
+    <div class="admin-card">
       <div class="table-wrap">
-        <table class="table">
+        <table class="admin-table">
           <thead>
             <tr>
-              <th>Nome</th>
+              <th>Usuário</th>
               <th>Email</th>
               <th>Papel</th>
               <th>Status</th>
-              <th>Ações</th>
+              <th>Ação</th>
             </tr>
           </thead>
           <tbody>
             @for (u of usuarios(); track u.id) {
-              <tr>
-                <td class="td-nome">{{ u.nome }}</td>
+              <tr [class.row--pending]="u.status === 'PENDENTE'">
+                <td>
+                  <div class="user-cell">
+                    <div class="user-avatar-sm">
+                      {{ u.nome.charAt(0).toUpperCase() }}
+                    </div>
+                    <span class="user-cell__name">{{ u.nome }}</span>
+                  </div>
+                </td>
                 <td class="td-email">{{ u.email }}</td>
                 <td>
                   <span class="badge" [class]="u.papel === 'ROLE_ADMIN' ? 'badge-warning' : 'badge-primary'">
@@ -42,15 +52,13 @@
                   </span>
                 </td>
                 <td>
-                  <span class="badge" [class]="u.status === 'APROVADO' ? 'badge-success' : 'badge-danger'">
+                  <span class="status-dot" [class.status-dot--ok]="u.status === 'APROVADO'" [class.status-dot--pending]="u.status === 'PENDENTE'">
                     {{ labelStatus(u) }}
                   </span>
                 </td>
                 <td>
                   @if (u.status === 'PENDENTE') {
-                    <button class="btn btn-primary btn-sm" (click)="aprovar(u.id)">
-                      Aprovar
-                    </button>
+                    <button class="btn btn-primary btn-sm" (click)="aprovar(u.id)">Aprovar</button>
                   } @else {
                     <span class="td-ok">—</span>
                   }
@@ -62,4 +70,5 @@
       </div>
     </div>
   }
+
 </div>

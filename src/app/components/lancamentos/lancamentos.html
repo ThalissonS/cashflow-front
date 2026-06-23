@@ -1,38 +1,27 @@
-<div>
-  <div class="page-header lc-header">
+<div class="lancamentos">
+
+  <div class="lc-page-header">
     <div>
       <h1 class="page-title">Lançamentos</h1>
       <p class="page-subtitle">{{ nomeMes() }} / {{ ano() }}</p>
     </div>
-    <button class="btn btn-primary" (click)="mostrarForm.update(v => !v)">
-      {{ mostrarForm() ? 'Cancelar' : '+ Novo Lançamento' }}
+    <button class="btn btn-primary lc-novo-btn" (click)="mostrarForm.update(v => !v)">
+      @if (mostrarForm()) {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar
+      } @else {
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Novo
+      }
     </button>
   </div>
 
-  <!-- Filtro de período -->
-  <div class="periodo card">
-    <select class="form-control periodo-select" [value]="mes()" (change)="setMes($any($event.target).value)">
-      @for (m of meses; track m.value) {
-        <option [value]="m.value" [selected]="m.value === mes()">{{ m.label }}</option>
-      }
-    </select>
-    <select class="form-control periodo-select" [value]="ano()" (change)="setAno($any($event.target).value)">
-      @for (a of anos(); track a) {
-        <option [value]="a" [selected]="a === ano()">{{ a }}</option>
-      }
-    </select>
-  </div>
-
-  @if (erro()) {
-    <div class="alert alert-danger" style="margin-top: 1rem;">{{ erro() }}</div>
-  }
-
-  <!-- Formulário novo lançamento -->
+  <!-- Form: novo lançamento -->
   @if (mostrarForm()) {
-    <div class="card form-card">
-      <h3 class="form-card-title">Novo Lançamento</h3>
-      <form [formGroup]="form" (ngSubmit)="salvar()" novalidate>
-        <div class="form-row">
+    <div class="lc-form-card">
+      <h3 class="lc-form-title">Novo Lançamento</h3>
+      <form [formGroup]="form" (ngSubmit)="salvar()" novalidate class="lc-form-body">
+        <div class="lc-form-row">
           <div class="form-group">
             <label class="form-label">Descrição *</label>
             <input type="text" class="form-control" formControlName="descricao" placeholder="Ex: Aluguel" />
@@ -48,7 +37,7 @@
             }
           </div>
         </div>
-        <div class="form-row">
+        <div class="lc-form-row">
           <div class="form-group">
             <label class="form-label">Tipo *</label>
             <select class="form-control" formControlName="tipo">
@@ -67,7 +56,7 @@
             </select>
           </div>
         </div>
-        <div class="form-row">
+        <div class="lc-form-row">
           <div class="form-group">
             <label class="form-label">Mês *</label>
             <select class="form-control" formControlName="mes">
@@ -85,41 +74,76 @@
             </select>
           </div>
         </div>
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" [disabled]="salvando()">
-            {{ salvando() ? 'Salvando...' : 'Salvar' }}
-          </button>
-        </div>
+        <button type="submit" class="btn btn-primary" [disabled]="salvando()">
+          {{ salvando() ? 'Salvando...' : 'Salvar Lançamento' }}
+        </button>
       </form>
     </div>
   }
 
-  <!-- Lista de lançamentos -->
+  <!-- Period selector -->
+  <div class="lc-period-bar">
+    <select class="period-select" [value]="mes()" (change)="setMes($any($event.target).value)">
+      @for (m of meses; track m.value) {
+        <option [value]="m.value" [selected]="m.value === mes()">{{ m.label }}</option>
+      }
+    </select>
+    <select class="period-select" [value]="ano()" (change)="setAno($any($event.target).value)">
+      @for (a of anos(); track a) {
+        <option [value]="a" [selected]="a === ano()">{{ a }}</option>
+      }
+    </select>
+  </div>
+
+  @if (erro()) {
+    <div class="alert alert-danger">{{ erro() }}</div>
+  }
+
   @if (loading()) {
     <div class="loading-spinner">Carregando lançamentos...</div>
   } @else if (lancamentos().length === 0) {
     <div class="empty-state">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-text-secondary)">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
       <p>Nenhum lançamento em {{ nomeMes() }}/{{ ano() }}.</p>
     </div>
   } @else {
-    <div class="lista">
+    <div class="lc-list">
       @for (l of lancamentos(); track l.id) {
-        <div class="lc-item card">
-          <div class="lc-info">
-            <span class="lc-desc">{{ l.descricao }}</span>
-            @if (l.categoria) {
-              <span class="badge badge-primary">{{ l.categoria.nome }}</span>
-            }
+        <div class="lc-item"
+          [class.lc-item--receita]="l.tipo === 'RECEITA'"
+          [class.lc-item--fixo]="l.tipo === 'GASTO_FIXO'"
+          [class.lc-item--var]="l.tipo === 'GASTO_VARIAVEL'"
+          [class.lc-item--invest]="l.tipo === 'INVESTIMENTO'">
+
+          <div class="lc-item__strip"></div>
+
+          <div class="lc-item__body">
+            <span class="lc-item__desc">{{ l.descricao }}</span>
+            <div class="lc-item__meta">
+              <span class="lc-item__tipo">{{ labelTipo(l.tipo) }}</span>
+              @if (l.categoria) {
+                <span class="lc-item__cat">{{ l.categoria.nome }}</span>
+              }
+            </div>
           </div>
-          <div class="lc-right">
-            <span class="lc-valor" [class]="classeTipo(l.tipo)">{{ formatar(l.valor) }}</span>
-            <span class="badge" [class]="'badge-' + (l.tipo === 'RECEITA' ? 'success' : l.tipo === 'INVESTIMENTO' ? 'primary' : 'danger')">
-              {{ labelTipo(l.tipo) }}
-            </span>
-            <button class="btn btn-danger btn-sm" (click)="deletar(l.id)">Excluir</button>
+
+          <div class="lc-item__right">
+            <span class="lc-item__valor">{{ formatar(l.valor) }}</span>
+            <button class="lc-item__del" (click)="deletar(l.id)" title="Excluir">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/><path d="M14 11v6"/>
+                <path d="M9 6V4h6v2"/>
+              </svg>
+            </button>
           </div>
         </div>
       }
     </div>
   }
+
 </div>

@@ -1,7 +1,10 @@
-<div>
+<div class="simulador">
+
   <div class="page-header">
-    <h1 class="page-title">Simulador de Investimentos</h1>
-    <p class="page-subtitle">Compare CDB, LCI, LCA e Poupança com IR regressivo</p>
+    <div>
+      <h1 class="page-title">Simulador</h1>
+      <p class="page-subtitle">Compare CDB, LCI, LCA e Poupança com IR regressivo</p>
+    </div>
   </div>
 
   @if (erro()) {
@@ -12,10 +15,17 @@
     <div class="loading-spinner">Carregando tipos...</div>
   } @else {
     <div class="sim-layout">
-      <!-- Formulário -->
-      <div class="card">
-        <h3 class="form-card-title">Parâmetros</h3>
-        <form [formGroup]="form" (ngSubmit)="simular()" novalidate>
+
+      <!-- Form card -->
+      <div class="sim-form-card">
+        <div class="sim-form-card__title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+          </svg>
+          Parâmetros
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="simular()" novalidate class="sim-form-body">
 
           <div class="form-group">
             <label class="form-label">Tipo de Investimento *</label>
@@ -31,13 +41,11 @@
           </div>
 
           @if (carregandoOfertas()) {
-            <div style="margin: 0.5rem 0; font-size: var(--font-size-sm); color: var(--color-text-muted);">
-              Carregando ofertas...
-            </div>
+            <p class="sim-loading-hint">Buscando ofertas...</p>
           }
 
           @if (ofertas().length > 0) {
-            <div class="form-group" style="margin-top: 1rem;">
+            <div class="form-group">
               <label class="form-label">Banco / Oferta</label>
               <select class="form-control" formControlName="bancoId" (change)="onBancoChange($event)">
                 <option value="">Personalizar taxa</option>
@@ -48,12 +56,12 @@
             </div>
           }
 
-          <div class="form-group" style="margin-top: 1rem;">
+          <div class="form-group">
             <label class="form-label">% do CDI</label>
             <input type="number" class="form-control" formControlName="percentualCdi" min="0.01" step="0.01" placeholder="Ex: 100" />
           </div>
 
-          <div class="form-row" style="margin-top: 1rem;">
+          <div class="sim-form-row">
             <div class="form-group">
               <label class="form-label">Valor Inicial (R$) *</label>
               <input type="number" class="form-control" formControlName="valorInicial" min="0" step="0.01" />
@@ -64,7 +72,7 @@
             </div>
           </div>
 
-          <div class="form-group" style="margin-top: 1rem;">
+          <div class="form-group">
             <label class="form-label">Prazo (meses) *</label>
             <input type="number" class="form-control" formControlName="prazoMeses" min="1" />
             @if (form.controls.prazoMeses.invalid && form.controls.prazoMeses.touched) {
@@ -72,40 +80,57 @@
             }
           </div>
 
-          <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem;" [disabled]="simulando()">
-            {{ simulando() ? 'Simulando...' : 'Simular' }}
+          <button type="submit" class="btn btn-primary sim-submit-btn" [disabled]="simulando()">
+            @if (simulando()) { Calculando… } @else {
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+              </svg>
+              Simular
+            }
           </button>
         </form>
       </div>
 
-      <!-- Resultado -->
+      <!-- Result card -->
       @if (resultado(); as r) {
-        <div class="card resultado-card">
-          <h3 class="form-card-title">Resultado da Simulação</h3>
-          <div class="resultado-grid">
-            <div class="resultado-item">
-              <span class="resultado-label">Valor Bruto</span>
-              <span class="resultado-value">{{ formatar(r.valorBruto) }}</span>
+        <div class="sim-result-card">
+          <div class="sim-result-card__title">Resultado</div>
+
+          <!-- Líquido em destaque -->
+          <div class="sim-result-hero">
+            <span class="sim-result-hero__label">Valor Líquido</span>
+            <span class="sim-result-hero__value">{{ formatar(r.valorLiquido) }}</span>
+          </div>
+
+          <div class="sim-result-rows">
+            <div class="sim-result-row">
+              <span class="sim-result-row__label">Valor Bruto</span>
+              <span class="sim-result-row__val">{{ formatar(r.valorBruto) }}</span>
             </div>
-            <div class="resultado-item">
-              <span class="resultado-label">Imposto de Renda ({{ formatarPct(r.aliquotaIr) }})</span>
-              <span class="resultado-value tipo-gasto-fixo">{{ formatar(r.ir) }}</span>
+            <div class="sim-result-row">
+              <span class="sim-result-row__label">Rendimento total</span>
+              <span class="sim-result-row__val sim-result-row__val--invest">{{ formatar(r.rendimento) }}</span>
             </div>
-            <div class="resultado-item destaque">
-              <span class="resultado-label">Valor Líquido</span>
-              <span class="resultado-value tipo-receita">{{ formatar(r.valorLiquido) }}</span>
-            </div>
-            <div class="resultado-item">
-              <span class="resultado-label">Rendimento Total</span>
-              <span class="resultado-value tipo-invest">{{ formatar(r.rendimento) }}</span>
+            <div class="sim-result-row">
+              <span class="sim-result-row__label">IR ({{ formatarPct(r.aliquotaIr) }})</span>
+              <span class="sim-result-row__val sim-result-row__val--danger">{{ formatar(r.ir) }}</span>
             </div>
           </div>
-          <p class="resultado-obs">
-            IR calculado com aproximação de meses × 30 dias (IR regressivo: 22,5% até 6m → 15% acima de 24m).
-            LCI e LCA são isentos de IR.
+
+          <p class="sim-result-obs">
+            IR calculado com aproximação de meses × 30 dias (IR regressivo: 22,5% até 6m → 15% acima de 24m). LCI e LCA são isentos de IR.
           </p>
         </div>
+      } @else {
+        <div class="sim-empty-result">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+          </svg>
+          <p>Preencha os parâmetros e clique em <strong>Simular</strong> para ver o resultado.</p>
+        </div>
       }
+
     </div>
   }
+
 </div>

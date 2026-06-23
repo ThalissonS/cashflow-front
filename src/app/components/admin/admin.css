@@ -1,42 +1,98 @@
-.table-wrap {
-  overflow-x: auto;
+.admin-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
-.table {
+.table-wrap { overflow-x: auto; }
+
+.admin-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
 }
 
-.table th {
+.admin-table th {
   text-align: left;
-  padding: var(--space-sm) var(--space-md);
+  padding: 12px var(--space-md);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-muted);
   font-size: var(--font-size-xs);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.6px;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-card);
   border-bottom: 1px solid var(--color-border);
 }
 
-.table td {
-  padding: var(--space-md);
+.admin-table td {
+  padding: 14px var(--space-md);
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
-.table tr:last-child td {
-  border-bottom: none;
+.admin-table tr:last-child td { border-bottom: none; }
+
+.admin-table tr.row--pending { background: rgba(224, 160, 51, 0.04); }
+
+.admin-table tr:hover td { background: rgba(255,255,255,0.025); }
+
+/* User cell with avatar */
+.user-cell { display: flex; align-items: center; gap: 10px; }
+
+.user-avatar-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  user-select: none;
 }
 
-.td-nome {
+.user-cell__name {
   font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
-.td-email {
-  color: var(--color-text-muted);
+.td-email { color: var(--color-text-secondary); white-space: nowrap; }
+.td-ok { color: var(--color-text-secondary); }
+
+/* Status dot badge */
+.status-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: var(--font-weight-semibold);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
 }
 
-.td-ok {
-  color: var(--color-text-muted);
+.status-dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
+
+.status-dot--ok {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+.status-dot--ok::before { background: var(--color-success); }
+
+.status-dot--pending {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+.status-dot--pending::before { background: var(--color-warning); }
