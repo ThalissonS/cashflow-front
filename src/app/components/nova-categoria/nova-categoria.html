@@ -1,16 +1,33 @@
-<div style="border: 1px solid #ccc; padding: 20px; margin-top: 20px; border-radius: 8px;">
-  <h3>Nova Categoria 🏷️</h3>
+<div class="form-card">
+  <div class="form-card__header">
+    <div class="form-card__icon">⊕</div>
+    <div>
+      <h3 class="form-card__title">Nova Categoria</h3>
+      <p class="form-card__subtitle">Organize suas despesas por tipo</p>
+    </div>
+  </div>
 
-  <form [formGroup]="formCategoria" (ngSubmit)="enviarParaNuvem()" style="display: flex; flex-direction: column; gap: 10px; max-width: 300px;">
-    
-    <input type="text" formControlName="nome" placeholder="Nome (Ex: Alimentação)" style="padding: 8px;">
-    
-    <input type="text" formControlName="descricao" placeholder="Descrição (Opcional)" style="padding: 8px;">
-    
-    <button type="submit" [disabled]="formCategoria.invalid" style="padding: 10px; cursor: pointer; background: #28a745; color: white; border: none; border-radius: 4px;">
+  <form [formGroup]="formCategoria" (ngSubmit)="enviarParaNuvem()" class="form-body">
+    <div class="field-group">
+      <label class="field-label">Nome da categoria</label>
+      <input type="text" formControlName="nome" placeholder="Ex: Alimentação, Transporte...">
+    </div>
+
+    <div class="field-group">
+      <label class="field-label">Descrição <span class="field-optional">(opcional)</span></label>
+      <input type="text" formControlName="descricao" placeholder="Ex: Gastos com refeições e mercado">
+    </div>
+
+    <button type="submit" [disabled]="formCategoria.invalid" class="btn btn--primary btn--full">
       Salvar Categoria
     </button>
   </form>
 
-  <p style="font-weight: bold; margin-top: 10px;">{{ mensagem }}</p>
+  @if (mensagem) {
+    <div class="form-feedback"
+      [class.form-feedback--success]="mensagem.startsWith('✅')"
+      [class.form-feedback--error]="mensagem.startsWith('❌')">
+      {{ mensagem }}
+    </div>
+  }
 </div>

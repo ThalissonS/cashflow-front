@@ -1,0 +1,86 @@
+.form-card__icon--blue {
+  background: rgba(74, 158, 255, 0.12);
+  color: #4a9eff;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+/* Redeclarado pois Angular encapsula CSS por componente */
+.form-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+
+.form-card__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.form-card__icon {
+  width: 42px;
+  height: 42px;
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.form-card__title  { font-size: 1rem; font-weight: 600; color: var(--color-text-primary); }
+.form-card__subtitle { font-size: 0.8rem; color: var(--color-text-secondary); margin-top: 2px; }
+
+.form-body { display: flex; flex-direction: column; gap: 16px; }
+
+.field-group { display: flex; flex-direction: column; gap: 6px; }
+
+.field-label { font-size: 0.82rem; font-weight: 500; color: var(--color-text-secondary); }
+
+.btn {
+  padding: 11px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn--primary { background: var(--color-accent); color: #fff; }
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 142, 62, 0.35);
+}
+
+.btn--full { width: 100%; margin-top: 4px; }
+
+.form-feedback {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.form-feedback--success {
+  background: var(--color-success-light);
+  color: var(--color-success);
+  border: 1px solid rgba(79, 142, 62, 0.25);
+}
+
+.form-feedback--error {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  border: 1px solid rgba(224, 82, 82, 0.25);
+}
