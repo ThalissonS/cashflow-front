@@ -81,9 +81,17 @@ html, body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'kern' 1, 'liga' 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Tabular nums para todos os valores monetários */
+[class*="value"], [class*="valor"], [class*="pct"] {
+  font-feature-settings: 'tnum' 1, 'cv02', 'cv03';
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }

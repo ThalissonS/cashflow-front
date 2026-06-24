@@ -20,34 +20,20 @@
 /* Brand mark */
 .auth-brand {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 10px;
   margin-bottom: var(--space-xl);
 }
 
-.auth-brand__mark {
-  width: 40px;
-  height: 40px;
-  background: var(--color-accent);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.5px;
-}
-
 .auth-brand__name {
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.5rem;
+  font-weight: 400;
   color: var(--color-text-secondary);
+  letter-spacing: -0.4px;
 }
 .auth-brand__name strong {
   font-weight: 700;
   color: var(--color-text-primary);
+  letter-spacing: -0.6px;
 }
 
 .auth-header {
