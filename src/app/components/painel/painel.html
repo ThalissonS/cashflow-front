@@ -1,9 +1,10 @@
 <div class="painel">
 
+  <!-- Period controls -->
   <div class="painel-header">
     <div class="painel-title-group">
       <h1 class="page-title">Painel</h1>
-      <p class="page-subtitle">Resumo financeiro mensal</p>
+      <p class="page-subtitle">{{ nomeMes() }} {{ ano() }}</p>
     </div>
     <div class="period-controls">
       <select class="period-select" [value]="mes()" (change)="setMes($any($event.target).value)">
@@ -25,25 +26,145 @@
     </div>
   </div>
 
-  @if (erro()) {
-    <div class="alert alert-danger">{{ erro() }}</div>
-  }
+  @if (erro()) { <div class="alert alert-danger">{{ erro() }}</div> }
 
   @if (loading()) {
-    <div class="loading-spinner">Carregando dados...</div>
+    <div class="painel-skeleton">
+      <div class="sk-hero"></div>
+      <div class="sk-row">
+        <div class="sk-block" style="height:220px"></div>
+        <div class="sk-block" style="height:220px"></div>
+      </div>
+      <div class="sk-block" style="height:150px"></div>
+    </div>
   } @else if (resumo()) {
 
-    <!-- Hero: saldo em destaque -->
+    <!-- ── Hero: saldo ─────────────────────────────────────────────── -->
     <div class="saldo-hero" [class.positivo]="resumo()!.saldo >= 0" [class.negativo]="resumo()!.saldo < 0">
-      <div class="saldo-hero__eyebrow">Saldo do Mês</div>
-      <div class="saldo-hero__value">{{ formatar(resumo()!.saldo) }}</div>
-      <div class="saldo-hero__hint">Receitas menos gastos totais do período</div>
       <div class="saldo-hero__deco"></div>
+      <div class="saldo-hero__left">
+        <span class="saldo-hero__eyebrow">Saldo do Mês</span>
+        <span class="saldo-hero__value">{{ formatar(resumo()!.saldo) }}</span>
+        <span class="saldo-hero__hint">
+          @if (resumo()!.saldo >= 0) {
+            Receitas de {{ formatar(resumo()!.totalReceitas) }} · {{ ((resumo()!.saldo / resumo()!.totalReceitas) * 100).toFixed(0) }}% poupado
+          } @else {
+            {{ formatar(Math.abs(resumo()!.saldo)) }} acima das receitas
+          }
+        </span>
+      </div>
+      <div class="saldo-hero__badges">
+        <div class="saldo-badge">
+          <span class="saldo-badge__label">Receitas</span>
+          <span class="saldo-badge__val saldo-badge__val--green">{{ formatar(resumo()!.totalReceitas) }}</span>
+        </div>
+        <div class="saldo-badge">
+          <span class="saldo-badge__label">Gastos</span>
+          <span class="saldo-badge__val saldo-badge__val--red">{{ formatar(resumo()!.totalGastos) }}</span>
+        </div>
+      </div>
     </div>
 
-    <!-- 4 metric tiles -->
-    <div class="metrics-grid">
+    <!-- ── Viz row: donut + insights ──────────────────────────────── -->
+    @if (breakdownBars().length > 0) {
+      <div class="viz-row">
 
+        <!-- Donut chart -->
+        <div class="donut-wrap">
+          <svg viewBox="0 0 120 120" class="donut-svg">
+            <!-- Track -->
+            <circle cx="60" cy="60" r="46" fill="none" stroke="var(--color-border)" stroke-width="10"/>
+            <!-- Segments -->
+            @for (s of donutSlices(); track s.label) {
+              <circle
+                cx="60" cy="60" r="46"
+                fill="none"
+                [style.stroke]="s.color"
+                stroke-width="10"
+                [attr.stroke-dasharray]="s.dashArray"
+                stroke-dashoffset="0"
+                [attr.transform]="'rotate(' + s.rotate + ' 60 60)'"
+                stroke-linecap="butt"/>
+            }
+            <!-- Center label -->
+            <text x="60" y="55" text-anchor="middle" class="donut-center-label">Gastos</text>
+            <text x="60" y="69" text-anchor="middle" class="donut-center-pct">
+              {{ ((resumo()!.totalGastos / resumo()!.totalReceitas) * 100).toFixed(0) }}%
+            </text>
+          </svg>
+
+          <!-- Legend -->
+          <div class="donut-legend">
+            @for (b of breakdownBars(); track b.label) {
+              <div class="legend-item">
+                <span class="legend-dot" [style.background]="b.color"></span>
+                <span class="legend-label">{{ b.label }}</span>
+                <span class="legend-pct">{{ b.pct.toFixed(0) }}%</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Insights narrativos -->
+        <div class="insights-panel">
+          <div class="insights-panel__title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Análise do período
+          </div>
+          @for (i of insights(); track i.text) {
+            <div class="insight-item insight-item--{{ i.type }}">
+              <span class="insight-item__icon">
+                @if (i.type === 'ok')     { ✓ }
+                @if (i.type === 'warn')   { ! }
+                @if (i.type === 'danger') { ✕ }
+                @if (i.type === 'info')   { · }
+              </span>
+              <span class="insight-item__text">{{ i.text }}</span>
+            </div>
+          }
+        </div>
+
+      </div>
+    }
+
+    <!-- ── Breakdown bars ─────────────────────────────────────────── -->
+    @if (breakdownBars().length > 0) {
+      <div class="breakdown-section">
+        <div class="breakdown-section__title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          Para onde vai a sua renda de {{ formatar(resumo()!.totalReceitas) }}
+        </div>
+
+        @for (b of breakdownBars(); track b.label) {
+          <div class="bbar">
+            <div class="bbar__head">
+              <div class="bbar__meta">
+                <span class="bbar__dot" [style.background]="b.color"></span>
+                <span class="bbar__label">{{ b.label }}</span>
+              </div>
+              <div class="bbar__numbers">
+                <span class="bbar__valor">{{ formatar(b.valor) }}</span>
+                <span class="bbar__pct" [style.color]="b.color">{{ b.pct.toFixed(0) }}%</span>
+              </div>
+            </div>
+            <div class="bbar__track">
+              <div class="bbar__fill"
+                [style.width.%]="b.pct > 100 ? 100 : b.pct"
+                [style.background]="b.color">
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ── 4 metric tiles ─────────────────────────────────────────── -->
+    <div class="metrics-grid">
       <div class="m-tile">
         <div class="m-tile__head">
           <div class="m-tile__icon m-tile__icon--receita">
@@ -55,7 +176,6 @@
         </div>
         <div class="m-tile__value m-tile__value--receita">{{ formatar(resumo()!.totalReceitas) }}</div>
       </div>
-
       <div class="m-tile">
         <div class="m-tile__head">
           <div class="m-tile__icon m-tile__icon--fixo">
@@ -69,7 +189,6 @@
         </div>
         <div class="m-tile__value m-tile__value--fixo">{{ formatar(resumo()!.totalGastosFixos) }}</div>
       </div>
-
       <div class="m-tile">
         <div class="m-tile__head">
           <div class="m-tile__icon m-tile__icon--var">
@@ -82,7 +201,6 @@
         </div>
         <div class="m-tile__value m-tile__value--var">{{ formatar(resumo()!.totalGastosVariaveis) }}</div>
       </div>
-
       <div class="m-tile">
         <div class="m-tile__head">
           <div class="m-tile__icon m-tile__icon--invest">
@@ -95,12 +213,10 @@
         </div>
         <div class="m-tile__value m-tile__value--invest">{{ formatar(resumo()!.totalInvestidoNoMes) }}</div>
       </div>
-
     </div>
 
-    <!-- Bottom: patrimônio + CDI -->
+    <!-- ── Bottom: patrimônio + CDI ──────────────────────────────── -->
     <div class="bottom-row">
-
       <div class="patrimonio-card">
         <div class="patrimonio-card__label">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -111,7 +227,6 @@
         </div>
         <div class="patrimonio-card__value">{{ formatar(resumo()!.patrimonioInvestido) }}</div>
       </div>
-
       <div class="cdi-card">
         <div class="cdi-card__item">
           <span class="cdi-card__key">CDI anual (Banco Central)</span>
@@ -123,7 +238,6 @@
           <span class="cdi-card__val cdi-card__val--green">{{ formatar(resumo()!.rendimentoEstimadoMes) }}</span>
         </div>
       </div>
-
     </div>
 
   }
